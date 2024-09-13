@@ -5,16 +5,17 @@ class DirectoryObject:
     '''
     ディレクトリの構造を持つ
     '''
-    def __init__(self, parent_dir: Path|str) -> None:
-        if isinstance(parent_dir, str):
-            parent_dir = Path(parent_dir)
-        if not p.is_dir():
-            raise ValueError(f'{p} Is Not Directory.')
+    def __init__(self, base_dir: Path|str) -> None:
+        if isinstance(base_dir, str):
+            base_dir = Path(base_dir)
+        if not base_dir.is_dir():
+            raise ValueError(f'{base_dir} Is Not Directory.')
 
+        self.base_dir = base_dir
         self.dirs = []
         self.files = []
 
-        for p in parent_dir.rglob('*'):
+        for p in base_dir.rglob('*'):
             if p.is_dir():
                 self.dirs.append(p)
             elif p.is_file():
