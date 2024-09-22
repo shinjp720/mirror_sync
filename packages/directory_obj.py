@@ -9,7 +9,7 @@ class DirectoryObject:
         if isinstance(base_dir, str):
             base_dir = Path(base_dir)
         if not base_dir.is_dir():
-            raise ValueError(f'{base_dir} Is Not Directory.')
+            raise ValueError(f'{base_dir}')
 
         self.base_dir = base_dir
         self.dirs = []
