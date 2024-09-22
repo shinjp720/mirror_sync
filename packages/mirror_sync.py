@@ -54,8 +54,11 @@ class MirrorSync:
         '''
         # fileの削除
         source_files_stem = set(file.stem for file in self.source.files)
+        files_to_delete = []
         for p in self.destination.files:
             if p.stem not in source_files_stem:
+                files_to_delete.append(p)
+        for p in files_to_delete:
                 p.unlink()
                 self.destination.files.remove(p)
                 print(f'[deleted] {str(p)}')
