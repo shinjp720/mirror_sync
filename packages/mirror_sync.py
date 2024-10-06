@@ -1,7 +1,7 @@
 from pathlib import Path
 from packages.directory_obj import DirectoryObject
 from shutil import copy2, move
-from pprint import pprint
+
 
 class MirrorSync:
     '''
@@ -16,21 +16,29 @@ class MirrorSync:
     def sync_exec(self, *, delete_ok=False):
         '''
         sourceとdestinationをシンクさせる
-        delete_ok=Trueでsourceにないファイルを削除する
+        delete_ok=Trueで、dest内のsrcに無いファイルと重複を削除する
+        この順番で実行しないと予期しない挙動となる恐れがあります
         '''
+        if delete_ok == True:
+            self._delete_duplicate()
         self._make_dir()
         self._copy_file()
         if delete_ok == True:
             self._remove_items()
-        self._move_file()
+        self._move_files()
 
+
+    def _delete_duplicate(self):
+        '''
+        dest内に重複があれば削除する
+        '''
 
     def _make_dir(self):
         '''
-        sourceのディレクトリをdestinationに作成する
+        destに無いディレクトリを作成する
         '''
         for dir in self.src.dirs:
-            p = self._substitute(dir)
+            p = self.__substitute(dir)
             if not p.exists(): # destinationにdirが存在しない場合
                 p.mkdir(parents=True, exist_ok=True) # dirを作成
                 print(f'[created] {str(p)}')
@@ -45,33 +53,13 @@ class MirrorSync:
             if p.stem in destination_files:
                 continue
             else:
-                copy2(p, self._substitute(p))
+                copy2(p, self.__substitute(p))
                 print(f'[copied] {str(p)}')
-
-
-    def _move_file(self):
-        '''
-        fileの移動
-        '''
-        self.src = DirectoryObject(self.src.base) # DirectoryObjectを再生成
-        self.dest = DirectoryObject(self.dest.base) # DirectoryObjectを再生成
-
-        src_files = set(self._substitute(file) for file in self.src.files)
-        dest_files = set(self.dest.files)
-
-        diff1 = src_files - dest_files
-        diff2 = dest_files - src_files
-
-        for d1 in diff1:
-            for d2 in diff2:
-                if d1.stem == d2.stem:
-                    move(d2, d1)
-                    print(f'[moved] {str(d1)}')
             
 
     def _remove_items(self):
         '''
-        fileとdirの削除
+        srcに無いfileとdirの削除
         '''
         # fileの削除
         source_files_stem = set(file.stem for file in self.src.files)
@@ -83,9 +71,8 @@ class MirrorSync:
                 p.unlink()
                 self.dest.files.remove(p)
                 print(f'[deleted] {str(p)}')
-        
         # dirの削除
-        source_dirs = set(self._substitute(dir) for dir in self.src.dirs)
+        source_dirs = set(self.__substitute(dir) for dir in self.src.dirs)
         for p in self.dest.dirs:
             if p not in source_dirs:
                 p.rmdir()
@@ -93,7 +80,27 @@ class MirrorSync:
                 print(f'[deleted] {str(p)}')
 
 
-    def _substitute(self, source_dir: Path) -> Path:
+    def _move_files(self):
+        '''
+        ファイルを移動する
+        '''
+        self.src = DirectoryObject(self.src.base) # DirectoryObjectを再生成
+        self.dest = DirectoryObject(self.dest.base) # DirectoryObjectを再生成
+
+        files_to_move = [] # moveへの引数として(src, dest)で格納
+
+        for src in self.src.files:
+            for dest in self.dest.files:
+                sub = self.__substitute(src)
+                if (src.stem == dest.stem) and (sub != dest):
+                    files_to_move.append((dest, sub))
+
+        for arg in files_to_move:
+            move(*arg)
+            print(f'[moved] {arg[1]}')
+
+
+    def __substitute(self, source_dir: Path) -> Path:
         '''
         渡したsourceのbase部分をdestinationのbaseに書き換えて返す
         '''
