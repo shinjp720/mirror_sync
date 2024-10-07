@@ -15,7 +15,6 @@ class DirectoryObject:
         if not self.base.is_dir():
             raise ValueError(f'{self.base}')
 
-
         for p in self.base.rglob('*'):
             if p.is_dir():
                 self.dirs.append(p)
