@@ -1,0 +1,1 @@
+MirrorSyncにsrcとdestディレクトリのパスを渡して生成してsync_execを実行すると、ファイル名のみでsrcとdestを同期します。
