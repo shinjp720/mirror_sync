@@ -1,1 +1,4 @@
-MirrorSyncにsrcとdestディレクトリのパスを渡して生成してsync_execを実行すると、ファイル名のみでsrcとdestを同期します。
+MirrorSyncにsrcとdestディレクトリのパスを渡して生成してsync_execを実行すると、ファイル名のみでsrcをdestに同期します
+srcのファイルを書き換えることはありません
+sync_execに(remove_ok=True)を渡して実行するとdest内で重複しているファイル、srcに無いディレクトリ、srcに無いファイルを削除します
+WSL2で動作確認済みです
