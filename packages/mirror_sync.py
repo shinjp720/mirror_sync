@@ -1,7 +1,6 @@
 from pathlib import Path
 from packages.directory_obj import DirectoryObject
 from shutil import copy2, move
-from pprint import pprint
 
 
 class MirrorSync:
@@ -149,7 +148,7 @@ class MirrorSync:
 
     def __substitute(self, source_dir: Path) -> Path:
         '''
-        渡したsourceのbase部分をdestinationのbaseに書き換えて返す
+        渡したPathのsrcのbase部分をdestのbaseに書き換えて返す
         '''
         return Path(str(source_dir).replace(str(self.src.base)+'/',
                                        str(self.dest.base)+'/'))
